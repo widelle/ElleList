@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
-struct tracker {
-    char movieT[100];
-    char tvShow[100];
+struct tracker { 
+    char movieT[100]; // array to store movie title
+    char tvShow[100]; // array to store tv show title
 };
 
 //MOVIE LIST TRACKER
@@ -13,38 +13,30 @@ void inputMovieList(struct tracker *movie) {
     int num = 1;
     int file = 0;
     
+    //// Open movie list text file to find last number used
     fp = fopen("MovieList.txt", "r");
     if (fp) {
         file = 1;
         char line[200];
+        
+        // Read each line to get last movie number
         while (fgets(line, sizeof(line), fp)) {
-            if (line[0] >= '0' && line[0] <= '9') {
-                int i = 0;
-                while (line[i] >= '0' && line[i] <= '9') {
-                    i++;
-                }
-                if (line[i] == '.') {
-                    int number;
-                    if (sscanf(line, "%d.", &number) == 1) {
-                        if (num >= num) {
-                            num = number + 1;
-                        }
-                    }
+            int number;
+            if (sscanf(line, "%d.", &number) == 1) {
+                if (number >= num) {
+                    num = number + 1; // update the next number
                 }
             }
         }
         fclose(fp);
     }
     
-    //condition if the file is not found
+    // Open file in append mode to add new movies
     fp = fopen("MovieList.txt", "a");
+    
     if (!fp) {
         printf("Could not open file.\n");
         return;
-    }
-    
-    if (!file) {
-        fprintf(fp, "\n=== Elle's Movie List ===\n");
     }
     
     printf("\n==== LIST YOUR MOVIE ==== \n");
@@ -53,18 +45,22 @@ void inputMovieList(struct tracker *movie) {
     printf("2. Type movie title to saved\n");
     
     printf("\nENTER MOVIE TITLE: \n");
-    for(int i=0; i<100; i++){
-        if(fgets(movie[i].movieT, sizeof(movie[i].movieT), stdin) == NULL){
+    struct tracker *p = movie;
+    
+    // Loop to get up to 100 movie titles from user
+    for (int i = 0; i < 100; i++, p++) {
+        if (fgets(p->movieT, sizeof(p->movieT), stdin) == NULL) {
             break;
         }
-        movie[i].movieT[strcspn(movie[i].movieT, "\n")] = 0; 
-        
-        if(strlen(movie[i].movieT) == 0){
+        p->movieT[strcspn(p->movieT, "\n")] = 0;
+
+        if (*(p->movieT) == '\0') {
             break;
         }
         count++;
     }
     
+    // Write all entered movies to file with numbering
     for(int i=0; i<count; i++){
         fprintf(fp, "%d. %s\n", num + i, movie[i].movieT);
     }
@@ -85,18 +81,10 @@ void inputTVList(struct tracker *tv) {
         file = 1;
         char line[200];
         while (fgets(line, sizeof(line), fp)) {
-            if (line[0] >= '0' && line[0] <= '9') {
-                int i = 0;
-                while (line[i] >= '0' && line[i] <= '9') {
-                    i++;
-                }
-                if (line[i] == '.') {
-                    int number;
-                    if (sscanf(line, "%d.", &number) == 1) {
-                        if (num >= num) {
-                            num = number + 1;
-                        }
-                    }
+            int number;
+            if (sscanf(line, "%d.", &number) == 1) {
+                if (number >= num) {
+                    num = number + 1;
                 }
             }
         }
@@ -110,23 +98,20 @@ void inputTVList(struct tracker *tv) {
         return;
     }
     
-    if (!file) {
-        fprintf(fp, "\n=== Elle's TV Show List ===\n");
-    }
-    
     printf("\n==== LIST YOUR TV SHOW ==== \n");
     printf("RULE:\n");
     printf("1. Press ENTER to SAVED!\n");
     printf("2. Type TV Show title to saved\n");
     
     printf("\nENTER TV SHOW TITLE: \n");
-    for(int i=0; i<100; i++){
-        if(fgets(tv[i].tvShow, sizeof(tv[i].tvShow), stdin) == NULL){
+    struct tracker *p = tv;
+    for (int i = 0; i < 100; i++, p++) {
+        if (fgets(p->tvShow, sizeof(p->tvShow), stdin) == NULL) {
             break;
         }
-        tv[i].tvShow[strcspn(tv[i].tvShow, "\n")] = 0; 
-        
-        if(strlen(tv[i].tvShow) == 0){
+        p->tvShow[strcspn(p->tvShow, "\n")] = 0;
+
+        if (*(p->tvShow) == '\0') {
             break;
         }
         count++;
@@ -140,41 +125,139 @@ void inputTVList(struct tracker *tv) {
     printf("Saved.\n");
 }
 
-//rating of the list
+//DELETING A MOVIE TITLE
+// Function to delete a movie title from the movie list fil
+void deleteMovieTitle() {
+    char movieTitle[100];
+    
+    printf("Enter the movie title to delete: ");
+    fgets(movieTitle, sizeof(movieTitle), stdin);
+    movieTitle[strcspn(movieTitle, "\n")] = 0;
 
-//deleting a list
+    FILE *fp = fopen("MovieList.txt", "r");
+    if (!fp) {
+        printf("File not found.\n");
+        return;
+    }
 
-//if the user enter keys that is not acceptable, it will error
+    char lines[100][200];
+    int count = 0;
+    int deleted = 0;
+    char line[200];
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, movieTitle) == NULL) {
+            strcpy(lines[count++], line);
+        } else {
+            deleted = 1;
+        }
+    }
+    fclose(fp);
+
+    fp = fopen("MovieList.txt", "w"); 
+    if (!fp) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fputs(lines[i], fp);
+    }
+    fclose(fp);
+
+    if (deleted)
+        printf("Movie \"%s\" deleted successfully.\n", movieTitle);
+    else
+        printf("Movie \"%s\" not found.\n", movieTitle);
+}
+
+//DELETING TV SHOW TITLE
+void deleteTVShow(){
+	char TVtitle[100];
+    printf("Enter the TV Show title to delete: ");
+    fgets(TVtitle, sizeof(TVtitle), stdin);
+    TVtitle[strcspn(TVtitle, "\n")] = 0;
+
+    FILE *fp = fopen("TV Show List.txt", "r");
+    if (!fp) {
+        printf("File not found.\n");
+        return;
+    }
+
+    char lines[100][200];
+    int count = 0;
+    int deleted = 0;
+    char line[200];
+
+    while (fgets(line, sizeof(line), fp)) {
+        if (strstr(line, TVtitle) == NULL) {
+            strcpy(lines[count++], line);
+        } else {
+            deleted = 1;
+        }
+    }
+    fclose(fp);
+
+    fp = fopen("TV Show List.txt", "w"); 
+    if (!fp) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fputs(lines[i], fp);
+    }
+    fclose(fp);
+
+    if (deleted)
+        printf("TV Show \"%s\" deleted successfully.\n", TVtitle);
+    else
+        printf("TV Show \"%s\" not found.\n", TVtitle);
+}
+
+// Main function to display menu and call appropriate functions
 int main() {
-    struct tracker movie[100];
+    struct tracker movie[100]; //array use to hold the # of lines
     struct tracker tv[100];
     int choice;
-    
+    char input[10];
+
     while(1){
-    	printf("\n==== ELLE LIST TRACKER ====\n");
-    	printf("1. Movie List\n");
-    	printf("2. TV Show List\n");
-    	printf("3. Exit\n");
-    	printf("Enter your choice (1-3): ");
-    	
-    	if(scanf("%d", &choice) != 1){
-    		while(getchar() != '\n');
-    			printf("\nINVALID CHOICE! Choose number 1, 2, and 3 only!!\n");
-    			continue;
-		}
-    	getchar();
-    	
-    	if(choice == 1){
-    		inputMovieList(movie);
-		}else if(choice == 2){
-			inputTVList(tv);
-		}else if(choice == 3){
-			printf("Exit!");
-			break;
-		}else{
-			printf("\nINVALID CHOICE! Choose number 1, 2, and 3 only!!\n");
-		}
-	}
-    
+        printf("\n==== ELLE LIST TRACKER ====\n");
+        printf("1. Movie List\n");
+        printf("2. TV Show List\n");
+        printf("3. Delete Movie Title\n");
+        printf("4. Delete TV Show Title\n");
+        printf("5. Exit\n");
+
+        while (1) {
+            printf("Enter your choice (1-5): ");
+            if (fgets(input, sizeof(input), stdin) == NULL) {
+                printf("Input error. Try again.\n");
+                continue;
+            }
+            // Check if input is 1-5 only
+            if (input[0] >= '1' && input[0] <= '5' && (input[1] == '\n' || input[1] == '\0')) {
+                choice = input[0] - '0';  
+                break;
+            } else {
+                printf("\nINVALID CHOICE! Choose number 1, 2, 3, 4 or 5 only!!\n\n");
+            }
+        }
+
+        if(choice == 1){
+            inputMovieList(movie);
+        } else if(choice == 2){
+            inputTVList(tv);
+        } else if(choice == 3){
+            deleteMovieTitle();
+        } else if(choice == 4){
+            deleteTVShow();
+        } else if(choice == 5){
+            printf("\nExit!\n");
+            break;
+        }
+    }
+
     return 0;
 }
