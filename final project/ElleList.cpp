@@ -5,20 +5,17 @@ struct tracker {
     char movieT[100]; // array to store movie title
     char tvShow[100]; // array to store tv show title
 };
-
 //MOVIE LIST TRACKER
 void inputMovieList(struct tracker *movie) {
     FILE *fp;
     int count = 0;
     int num = 1;
     int file = 0;
-    
     // Open movie list text file to find last number used
     fp = fopen("MovieList.txt", "r");
     if (fp) {
         file = 1;
         char line[200];
-        
         // Read each line to get last movie number
         while (fgets(line, sizeof(line), fp)) {
             int number;
@@ -30,10 +27,8 @@ void inputMovieList(struct tracker *movie) {
         }
         fclose(fp);
     }
-    
     // Open file in append mode to add new movies
     fp = fopen("MovieList.txt", "a");
-    
     if (!fp) {
         printf("Could not open file.\n"); // if file is not found
         return;
@@ -46,32 +41,25 @@ void inputMovieList(struct tracker *movie) {
     
     printf("\nENTER MOVIE TITLE: \n");
     struct tracker *p = movie;
-    
     // Loop to list title
     for (int i = 0; i < 100; i++, p++) {
         if (fgets(p->movieT, sizeof(p->movieT), stdin) == NULL) { // read a line of text
             break;
         }
         p->movieT[strcspn(p->movieT, "\n")] = 0; // remove the newline from the string
-
-		/* - check if the string input is empty 
-			- remove new line and will exit
-		*/
+		//check if the string input is empty & remove new line and will exit
         if (*(p->movieT) == '\0') { 
             break;
         }
         count++;
     }
-    
     //saved movie
     for(int i=0; i<count; i++){
         fprintf(fp, "%d. %s\n", num + i, movie[i].movieT);
     }
-    fclose(fp);
-        
+    fclose(fp);  
     printf("Saved.\n");
 }
-
 //TV SHOW LIST TRACKER
 void inputTVList(struct tracker *tv) {
     FILE *fp;
@@ -83,18 +71,16 @@ void inputTVList(struct tracker *tv) {
     if (fp) {
         file = 1;
         char line[200];
-        
-        while (fgets(line, sizeof(line), fp)) {
-            int number;
-            if (sscanf(line, "%d.", &number) == 1) {
-                if (number >= num) {
-                    num = number + 1;
-                }
-            }
-        }
+	        while (fgets(line, sizeof(line), fp)) {
+	            int number;
+	            if (sscanf(line, "%d.", &number) == 1) {
+	                if (number >= num) {
+	                    num = number + 1;
+	                }
+	            }
+	        }
         fclose(fp);
     }
-    
     //condition if the file is not found
     fp = fopen("TV Show List.txt", "a");
     if (!fp) {
@@ -114,23 +100,18 @@ void inputTVList(struct tracker *tv) {
             break;
         }
         p->tvShow[strcspn(p->tvShow, "\n")] = 0;
-
         if (*(p->tvShow) == '\0') {
             break;
         }
         count++;
     }
-    
     for(int i=0; i<count; i++){
         fprintf(fp, "%d. %s\n", num + i, tv[i].tvShow);
     }
-    fclose(fp);
-        
+    fclose(fp); 
     printf("Saved.\n");
 }
-
 //DELETING A MOVIE TITLE
-// Function to delete a movie title from the movie list file
 void deleteMovieTitle() {
     char movieTitle[100];
     
@@ -162,7 +143,6 @@ void deleteMovieTitle() {
         printf("Movie \"%s\" not found.\n", movieTitle);
         return;
     }
-
     // Rewrite file with updated numbering
     fp = fopen("MovieList.txt", "w");
     if (!fp) {
@@ -172,7 +152,7 @@ void deleteMovieTitle() {
 
     for (int i = 0; i < count; i++) {
         // Remove numbering 
-        char *numbering = strchr(lines[i], '.');
+        char *numbering = strchr(lines[i], '.'); // find the string and the period of numbering
         if (numbering != NULL) {
             numbering++; 
             while (*numbering == ' ') numbering++; // skip spaces
@@ -181,14 +161,11 @@ void deleteMovieTitle() {
         }
         // Remove newline character
         numbering[strcspn(numbering, "\n")] = 0;
-        
         fprintf(fp, "%d. %s\n", i + 1, numbering);
     }
     fclose(fp);
-
     printf("Movie \"%s\" deleted successfully.\n", movieTitle);
 }
-
 // DELETING SERIES LIST INPUT
 void deleteTVShow() {
     char SeriesTitle[100];
@@ -221,14 +198,12 @@ void deleteTVShow() {
         printf("Movie \"%s\" not found.\n", SeriesTitle);
         return;
     }
-
     // Rewrite file with updated numbering
     fp = fopen("TV Show List.txt", "w");
     if (!fp) {
         printf("Error opening file for writing.\n");
         return;
     }
-
     for (int i = 0; i < count; i++) {
         // Remove numbering 
         char *numbering = strchr(lines[i], '.');
@@ -240,18 +215,14 @@ void deleteTVShow() {
         }
         // Remove newline character
         numbering[strcspn(numbering, "\n")] = 0;
-        
         fprintf(fp, "%d. %s\n", i + 1, numbering);
     }
     fclose(fp);
-
     printf("Movie \"%s\" deleted successfully.\n", SeriesTitle);
 }
-
-
 // DISPLAY MOVIE LIST
 void displayMovieList() {
-    FILE *fp = fopen("MovieList.txt", "r");
+    FILE *fp = fopen("MovieList.txt", "r"); // try to open 
     if (!fp) {
         printf("No movies found.\n");
         return;
@@ -260,12 +231,11 @@ void displayMovieList() {
     printf("\n==== MOVIE LIST ====\n");
     char line[200];
     
-    while (fgets(line, sizeof(line), fp)) {
+    while (fgets(line, sizeof(line), fp)) { // reads line from the file
         printf("%s", line);
     }
     fclose(fp);
 }
-
 // DISPLAY SERIES LIST
 void displayTVList() {
     FILE *fp = fopen("TV Show List.txt", "r");
@@ -282,19 +252,17 @@ void displayTVList() {
     }
     fclose(fp);
 }
-
 //edit the input
-void editInput() {
-    char oldTitle[100], newTitle[100];
-    char lines[100][200];
-    int count = 0, found = 0;
-    int listChoice;
+void editList() {
+    char oldTitle[100], newTitle[100]; // stores title
+    char lines[100][200]; // stores the lines
+    int count = 0, found = 0; // track the numbering
+    int listChoice; // movie or tv show
     char input[10];
-    char filename[50];
+    char filename[50]; // movie.txt or tvshow.txt
     char itemType[20];
-
-    // Prompt user which list to edit
-    printf("Which list do you want to edit?\n");
+    // Ask user which list to edit
+    printf("\nWhich list do you want to edit?\n");
     printf("1. Movie List\n2. TV Show List\n");
     while (1) {
         printf("Enter your choice (1 or 2): ");
@@ -310,7 +278,6 @@ void editInput() {
         }
     }
 
-    // Set filename and itemType based on choice using strcpy
     if (listChoice == 1) {
         strcpy(filename, "MovieList.txt");
         strcpy(itemType, "movie");
@@ -318,96 +285,86 @@ void editInput() {
         strcpy(filename, "TV Show List.txt");
         strcpy(itemType, "TV show");
     }
-
-    printf("Enter the %s title to edit: ", itemType);
-    fgets(oldTitle, sizeof(oldTitle), stdin);
-    oldTitle[strcspn(oldTitle, "\n")] = 0;  // remove newline
-
+    // Open the file for reading
     FILE *fp = fopen(filename, "r");
-    if (fp == NULL) {
-        printf("File not found.\n");
+    if (!fp) {
+        printf("Could not open %s.\n", filename);
         return;
     }
-
-    // Read all lines into array
-    while (fgets(lines[count], sizeof(lines[0]), fp) != NULL) {
+    // Read all lines from the file 
+    count = 0;
+    while (fgets(lines[count], sizeof(lines[count]), fp) && count < 100) {
         count++;
-        if (count >= 100) break;
     }
     fclose(fp);
 
-    // Search for the old title in each line
-    for (int i = 0; i < count; i++) {
-        char *titleStart = strchr(lines[i], '.');
-        if (titleStart != NULL) {
-            titleStart += 2;
-        } else {
-            titleStart = lines[i];
+    while (1) {
+        printf("Enter the %s title to edit: ", itemType);
+        if (fgets(oldTitle, sizeof(oldTitle), stdin) == NULL) {
+            printf("Input error. Try again.\n");
+            continue;
         }
-        // Remove trailing newline for comparison
-        char temp[200];
-        strcpy(temp, titleStart);
-        temp[strcspn(temp, "\n")] = 0;
-
-        if (strcmp(temp, oldTitle) == 0) {
-            found = 1;
-            printf("Enter the new %s title: ", itemType);
-            fgets(newTitle, sizeof(newTitle), stdin);
-            newTitle[strcspn(newTitle, "\n")] = 0;
-
-            if (titleStart != lines[i]) {
-                int numLen = (int)(titleStart - lines[i]);
-                char newLine[200];
-                int j;
-                for (j = 0; j < numLen; j++) {
-                    newLine[j] = lines[i][j];
-                }
-                newLine[j] = '\0';
-
-                strcat(newLine, newTitle);
-                strcat(newLine, "\n");
-
-                strcpy(lines[i], newLine);
+        oldTitle[strcspn(oldTitle, "\n")] = 0;  // Remove newline character
+        found = 0;  // Reset found 
+        // Search for the title in the list
+        for (int i = 0; i < count; i++) { 
+            char *titleStart = strchr(lines[i], '.');
+            if (titleStart != NULL) {
+                titleStart++;  
+                while (*titleStart == ' ') titleStart++; 
             } else {
-                int len = 0;
-                while (newTitle[len] != '\0') {
-                    lines[i][len] = newTitle[len];
-                    len++;
-                }
-                lines[i][len] = '\n';
-                lines[i][len + 1] = '\0';
+                titleStart = lines[i]; 
             }
-            break;
-        }
-    }
 
-    if (!found) {
-        if (listChoice == 1) {
-            printf("Movie \"%s\" not found.\n", oldTitle);
+            char theTitle[200];
+            strcpy(theTitle, titleStart);
+            theTitle[strcspn(theTitle, "\n")] = 0;  // Remove newline
+
+            if (strcmp(theTitle, oldTitle) == 0) {
+                found = 1;
+                // Ask for the new title
+                printf("Enter the new %s title: ", itemType);
+                if (fgets(newTitle, sizeof(newTitle), stdin) == NULL) {
+                    printf("Input error. Try again.\n");
+                    found = 0;  
+                    break;
+                }
+                newTitle[strcspn(newTitle, "\n")] = 0;  // Remove newline
+                // Replace the old title with the new title in the line
+                if (titleStart != lines[i]) {
+                    int titleLe = titleStart - lines[i];
+                    char newLine[200];
+	                    strncpy(newLine, lines[i], titleLe);
+	                    newLine[titleLe] = '\0';
+	                    strcat(newLine, newTitle);
+	                    strcat(newLine, "\n");
+	                    strcpy(lines[i], newLine);
+                } else {
+                    strcpy(lines[i], newTitle);
+                    strcat(lines[i], "\n");
+                }
+                printf("%s title updated successfully!\n", itemType);
+                break;
+            }
+        }
+
+        if (found) {
+            break;  // Exit the loop if title was found and updated
         } else {
-            printf("TV show \"%s\" not found.\n", oldTitle);
+            printf("%s \"%s\" not found. Please try again.\n", itemType, oldTitle); // Loop continues to ask again
         }
-        return;
     }
-
-    // Write all lines back to file
-    fp = fopen(filename, "w");
-    if (fp == NULL) {
-        printf("Error opening file for writing.\n");
+    fp = fopen(filename, "w"); // Save the updated list back to the file
+    if (!fp) {
+        printf("Could not open %s for writing.\n", filename);
         return;
     }
     for (int i = 0; i < count; i++) {
         fputs(lines[i], fp);
     }
     fclose(fp);
-
-    if (listChoice == 1) {
-        printf("Movie title updated successfully.\n");
-    } else {
-        printf("TV show title updated successfully.\n");
-    }
+    printf("The updated %s list has been saved.\n", itemType);
 }
-
 // Main function to display menu and call appropriate functions
 int main() {
     struct tracker movie[100]; //array use to hold the # of lines
@@ -421,22 +378,20 @@ int main() {
         printf("3. Delete Movie Title\n4. Delete TV Show Title\n");
         printf("5. Display Movie List\n6. Display TV Show List\n");
         printf("7. Edit List\n8. Exit\n");
-
-        while (1) {
-            printf("Enter your choice (1-5): ");
-            if (fgets(input, sizeof(input), stdin) == NULL) {
-                printf("Input error. Try again.\n");
-                continue;
-            }
-            // Check if input is 1-7 only
-            if (input[0] >= '1' && input[0] <= '7' && (input[1] == '\n' || input[1] == '\0')) {
-                choice = input[0] - '0';  
-                break;
-            } else {
-                printf("\nINVALID CHOICE!\n\n");
-            }
-        }
-
+	        while (1) {
+	            printf("Enter your choice (1-8): ");
+	            if (fgets(input, sizeof(input), stdin) == NULL) {
+	                printf("Input error. Try again.\n");
+	                continue;
+	            }
+	            if (input[0] >= '1' && input[0] <= '8' && (input[1] == '\n' || input[1] == '\0')) {
+	                choice = input[0] - '0';  
+	                break; // Check if input is 1-7 only
+	            } else {
+	                printf("\nINVALID CHOICE!\n\n");
+	            }
+	        }
+	        
         if(choice == 1){
             inputMovieList(movie);
         } else if(choice == 2){
@@ -450,12 +405,11 @@ int main() {
 		} else if(choice == 6){
 			displayTVList();
 		} else if(choice == 7){
-			editInput();
+			editList();
         } else if(choice == 8){
         	printf("\nExit!\n");
             break;
 		}
     }
-
     return 0;
 }
